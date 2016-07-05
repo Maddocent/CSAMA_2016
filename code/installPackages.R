@@ -1,0 +1,127 @@
+##------------------------------------------------------------
+## Installation script for CSAMA 2016
+##------------------------------------------------------------
+
+.required_R_version = c( "3.3.0", "3.3.1" )
+.required_Bioc_version = "3.3"
+.Bioc_devel_version = "3.4"
+.required_rstudio_version = "0.99.1241"
+.rstudio_url="https://www.rstudio.com/products/rstudio/download/preview/"
+options(warn = 1)
+#.baseurl = "http://www-huber.embl.de"
+.yr = format(Sys.Date(), "%y")
+## Check memory size
+pattern = "[0-9]+"
+min_mem = 4
+
+mem =
+  switch(.Platform$OS.type,         
+         unix = 
+           if (file.exists("/proc/meminfo")) {
+             ## regular linux
+             res = system('grep "^MemTotal" /proc/meminfo', intern=TRUE)
+             as.numeric(regmatches(res, regexpr(pattern, res)))/10^6
+           } else {
+             if (file.exists("/usr/sbin/system_profiler")) {
+               ## try MAC os
+               res = system('/usr/sbin/system_profiler SPHardwareDataType | grep "Memory"', intern=TRUE)
+               as.numeric(regmatches(res, regexpr(pattern, res)))
+             } else NULL  
+           },
+         windows = 
+           tryCatch({
+             res = system("wmic ComputerSystem get TotalPhysicalMemory", ignore.stderr=TRUE, intern=TRUE)[2L]
+             as.numeric(regmatches(res, regexpr(pattern, res)))/10^9
+           }, error = function(e) NULL),
+         NULL)
+
+if (is.null(mem)) {
+  warning(sprintf("Could not determine the size of your system memory. Please make sure that your machine has at least %dGB of RAM!", min_mem))
+} else {
+  mem = round(mem)
+  if ( mem < min_mem ) stop(sprintf("Found %dGB of RAM. You need a machine with at least %dGB of RAM for the CSAMA course!", mem, min_mem))
+  else message(sprintf("Found %dGB of RAM", mem))
+}
+
+## Check the R version
+R_version = paste(R.version$major, R.version$minor, sep=".")
+if( !(R_version %in% .required_R_version) )
+  stop(sprintf("You are using a version of R different than the one required for CSAMA'%s, please install R-%s", .yr, .required_R_version[2]))
+
+## Install Bioconductor
+source("http://bioconductor.org/biocLite.R")
+#chooseBioCmirror()
+#chooseCRANmirror()
+
+.baseurl = c( biocinstallRepos(), "http://www-huber.embl.de/users/reyes/csama2016/additionalPackages")
+
+### Check Rstudio version
+hasApistudio = suppressWarnings(require("rstudioapi", quietly=TRUE))
+if( !hasApistudio ){
+  biocLite("rstudioapi", suppressUpdates=TRUE, siteRepos = .baseurl)
+  suppressWarnings(require("rstudioapi", quietly=TRUE))
+}
+
+.rstudioVersion = try( rstudioapi::versionInfo()$version, silent=TRUE )
+if( inherits( .rstudioVersion, "try-error" ) ){
+  .rstudioVersion = gsub("\n|Error : ", "", .rstudioVersion)
+  rstudioError = sprintf("The following error was produced while checking your Rstudio version: \"%s\"\nPlease make sure that you are running this script from an Rstudio session. If you are doing so and the error persists, please contact the organisers of CSAMA'%s.\n", .rstudioVersion, .yr)
+  stop( rstudioError )
+}
+
+if( !( .rstudioVersion >= .required_rstudio_version ) ){
+  rstudioVersionError = sprintf("You are using a version of Rstudio different from the one required for CSAMA'%s, please install Rstudio v%s or higher.\nThe preview version of Rstudio can be found here: %s",
+    .yr, .required_rstudio_version, .rstudio_url)
+  stop( rstudioVersionError )
+}
+
+if( biocVersion() == .Bioc_devel_version )
+  useDevel(devel = FALSE)
+
+if( biocVersion() != .required_Bioc_version )
+  stop(sprintf("Please install Bioconductor %s\n", .required_Bioc_version))
+
+## Get list of packages to install
+deps = c("acepack", "ada", "ade4", "affy", "affydata", "affyPLM", "airway", "ALL", "annotate", "AnnotationDbi", "AnnotationForge", "AnnotationHub", "ape", "aplpack", "ArrayExpress", "assertthat", "BatchJobs", "BBmisc", "beeswarm", "BH", "BiasedUrn", "Biobase", "BiocGenerics", "BiocInstaller", "BiocParallel", "BiocStyle", "biomaRt", "biomformat", "Biostrings", "biovizBase", "bit", "bitops", "boot", "BSgenome", "BSgenome.Celegans.UCSC.ce2", "BSgenome.Dmelanogaster.UCSC.dm3", "BSgenome.Hsapiens.UCSC.hg18", "BSgenome.Hsapiens.UCSC.hg19", "BSgenome.Scerevisiae.UCSC.sacCer2", "Cairo", "caret", "caTools", "chipseq", "chron", "class", "clue", "cluster", "codetools", "coin", "colorspace", "CompQuadForm", "covr", "crayon", "curatedOvarianData", "curl", "datasets", "data.table", "DBI", "deepSNV", "DESeq", "DESeq2", "devtools", "DEXSeq", "dfoptim", "dichromat", "digest", "diptest", "DO.db", "doParallel", "downloader", "dplyr", "drosophila2probe", "DT", "dtplyr", "e1071", "edgeR", "ellipse", "EnsDb.Hsapiens.v75", "ensembldb", "Epi", "EpigeneticsCSAMA", "epitools", "erma", "evaluate", "expm", "extrafont", "FDb.UCSC.tRNAs", "fdrtool", "ff", "ffbase", "flexmix", "flowClust", "foreach", "foreign", "formatR", "Formula", "fpc", "futile.logger", "gapminder", "gbm", "gdata", "genefilter", "geneplotter", "GenomeInfoDb", "GenomicAlignments", "GenomicFeatures", "GenomicFiles", "GenomicRanges", "GEOquery", "geuvPack", "geuvStore2", "GGally", "ggbio", "ggplot2", "ggplot2movies", "ggthemes", "GGtools", "ggvis", "git2r", "Glimma", "glmnet", "globaltest", "gmailr", "GO.db", "golubEsets", "gplots", "gpls", "gQTLBase", "gQTLstats", "graph", "graphics", "grDevices", "grid", "gridExtra", "gss", "gtable", "gtools", "Gviz", "gwascat", "hexbin", "hgu133a.db", "hgu133aprobe", "hgu133plus2.db", "hgu95av2cdf", "hgu95av2.db", "hgu95av2probe", "highr", "Hiiragi2013", "HistData", "Hmisc", "hom.Hs.inp.db", "Homo.sapiens", "htmltools", "htmlwidgets", "httpuv", "httr", "hu6800.db", "humanStemCell", "hunspell", "hwriter", "igraph", "IHW", "illuminaio", "impute", "interactiveDisplay", "interactiveDisplayBase", "ipred", "IRanges", "jpeg", "jsonlite", "KEGG.db", "KEGGgraph", "keggorthology", "KEGGREST", "kernlab", "KernSmooth", "knitr", "labeling", "Lahman", "lattice", "latticeExtra", "lazyeval", "limma", "lintr", "lme4", "locfit", "logging", "lpsymphony", "lsmeans", "lubridate", "magrittr", "mapproj", "maps", "maptools", "markdown", "marray", "MASS", "Matrix", "matrixStats", "mboost", "mclust", "memoise", "metafor", "metagenomeSeq", "methods", "mgcv", "mice", "microbenchmark", "microRNA", "mime", "minqa", "mirbase.db", "mlbench", "MLInterfaces", "mouse4302.db", "MSnbase", "multcomp", "multtest", "munsell", "mvtnorm", "mzR", "nlme", "nloptr", "nnet", "numDeriv", "nycflights13", "oligo", "oligoClasses", "OrganismDbi", "org.At.tair.db", "org.Hs.eg.db", "org.Mm.eg.db", "org.Sc.sgd.db", "pamr", "pander", "parallel", "party", "pasilla", "pasillaBamSubset", "pheatmap", "phyloseq", "plm", "pls", "plyr", "png", "PoiClaClu", "PolyPhen.Hsapiens.dbSNP131", "prabclus", "praise", "purrr", "quantreg", "R6", "rafalib", "randomForest", "RBGL", "rBiopaxParser", "RColorBrewer", "Rcpp", "RcppArmadillo", "RCurl", "rda", "reactome.db", "readr", "reshape2", "rgl", "rglwidget", "Rgraphviz", "rmarkdown", "rms", "RMySQL", "RNAseqData.HNRNPC.bam.chr14", "robustbase", "ROC", "roxygen2", "rpart", "RPostgreSQL", "R.rsp", "Rsamtools", "RSQLite", "rstudioapi", "Rsubread", "rtracklayer", "RUnit", "rversions", "S4Vectors", "scales", "sfsmisc", "shiny", "ShortRead", "SIFT.Hsapiens.dbSNP132", "SIFT.Hsapiens.dbSNP137", "slam", "snow", "SNPlocs.Hsapiens.dbSNP141.GRCh38", "SNPlocs.Hsapiens.dbSNP.20101109", "SNPlocs.Hsapiens.dbSNP.20110815", "snpStats", "som", "SparseM", "spdep", "sphet", "splines", "splm", "statmod", "stats", "stats4", "stringi", "stringr", "SummarizedExperiment", "survival", "sva", "svglite", "tables", "tcltk", "testit", "testthat", "threejs", "tibble", "tidyr", "tikzDevice", "tissuesGeneExpression", "tkWidgets", "tools", "topGO", "trimcluster", "tufte", "TxDb.Athaliana.BioMart.plantsmart22", "TxDb.Dmelanogaster.UCSC.dm3.ensGene", "TxDb.Hsapiens.UCSC.hg18.knownGene", "TxDb.Hsapiens.UCSC.hg19.knownGene", "TxDb.Hsapiens.UCSC.hg19.lincRNAsTranscripts", "TxDb.Hsapiens.UCSC.hg38.knownGene", "TxDb.Mmusculus.UCSC.mm10.knownGene", "TxDb.Mmusculus.UCSC.mm9.knownGene", "tximport", "tximportData", "ucminf", "UsingR", "utils", "VariantAnnotation", "vcd", "vegan", "VennDiagram", "vsn", "webshot", "whisker", "withr", "XML", "xtable", "XVector", "yaml", "yeastCC", "yeastNagalakshmi", "zlibbioc", "zoo")
+
+## omit packages not supported on WIN and MAC
+type = getOption("pkgType")
+if ( type == "win.binary" || type == "mac.binary" ) {
+  #  deps = setdiff(deps, c('gmapR'))
+}
+toInstall = deps[which( !deps %in% rownames(installed.packages()))]
+
+## set up directory where downloaded packages are stored
+destdir = NULL
+            
+if (interactive()) {
+  cat(sprintf("\nDownloaded packages will be stored in %s.\n\nPress enter to proceed (recommended) or provide a different path: ", file.path(Sys.getenv("R_SESSION_TMPDIR"), "downloaded_packages")))
+  answer <- readLines(n = 1)
+  if(nchar(answer) > 1) 
+    destdir = answer
+}
+
+# do not compile from sources
+options(install.packages.compile.from.source = "never")
+biocLite(toInstall, siteRepos = .baseurl,
+  type = ifelse(type == "source", "source", "both"),
+  destdir = destdir)
+
+if(all( deps %in% rownames(installed.packages()) )) {
+  cat(sprintf("\nCongratulations! All packages were installed successfully :)\nWe are looking forward to seeing you in Brixen!\n\n"))
+} else {
+  notinstalled <- deps[which( !deps %in% rownames(installed.packages()) )]
+
+
+  if( .Platform$pkgType == "win.binary" & 'Rsubread' %in% notinstalled ){
+    cat("The windows binaries for the package 'Rsubread' are not available. However, this package is not 100% necessary for the practicals. If this is the only package
+    that was not installed, there is no reason to worry. \n")
+  }
+  
+  cat(sprintf("\nThe following package%s not installed:\n\n%s\n\nPlease try re-running the script to see whether the problem persists.\nIf you need help with troubleshooting, consider contacting the course organisers, or the Bioconductor mailing list.\n\n",
+    if (length(notinstalled)<=1) " was" else "s were", paste( notinstalled, collapse="\n" )))
+  
+  if( .Platform$pkgType == "source" ){
+    cat("Some of the packages (e.g. 'Cairo', 'fftwtools', 'mzR', rgl', 'RCurl', 'tiff', 'XML') that failed to install may require additional system libraries.*  Please check the documentation of these packages for unsatisfied dependencies.\n\n*) For example, on Ubuntu the dependencies corresponding to the mentioned packages are: libcairo2-dev, libfftw3-dev, libnetcdf-dev, libglu1-mesa-dev, libcurl4-openssl-dev, libtiff4-dev and libxml2-dev, respectively.\n\n")
+  }
+}
