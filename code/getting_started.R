@@ -23,7 +23,7 @@ search()
 ###################################
 # aditional packages
 ###################################
-## install.packages(downloader)
+install.packages(downloader)
 library(downloader)
 library(R.utils)
 

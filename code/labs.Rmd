@@ -1,0 +1,166 @@
+---
+title: "labs"
+author: "Marc A.T. Teunis"
+date: "11 juli 2016"
+output: html_document
+---
+
+#####################################################
+# lab 1: intro to R: 1.1
+#####################################################
+
+```{r}
+fname <- file.choose()   ## "ALLphenoData.tsv"
+stopifnot(file.exists(fname))
+pdata <- read.delim(fname)
+
+
+
+```
+
+
+happygitwithr.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r setup, include=FALSE}
+args(apply)
+
+x <- rnorm(1000)                     # atomic vectors
+y <- x + rnorm(1000, sd=.5)
+df <- data.frame(x=x, y=y)           # object of class 'data.frame'
+plot(y ~ x, df)                      # generic plot, method plot.formula
+fit <- lm(y ~x, df)                  # object of class 'lm'
+methods(class=class(fit)) 
+
+
+
+
+
+```
+
+2 Case studies
+
+These case studies serve as refreshers on R input and manipulation of data.
+2.1 ALL phenotypic data
+
+Input a file that contains ALL (acute lymphoblastic leukemia) patient information
+
+
+```{r}
+fname <- file.choose()   ## "ALLphenoData.tsv"
+stopifnot(file.exists(fname))
+pdata <- read.delim(fname)
+
+summary(pdata$sex)
+
+## different ways to subset
+pdata[1:5, 3:4]
+pdata[1:5, ]
+head(pdata[, 3:5])
+tail(pdata[, 3:5], 3)
+head(pdata$age)
+head(pdata$sex)
+head(pdata[pdata$age > 21,])
+
+idx <- pdata$sex == "F" & pdata$age > 40
+table(idx)
+
+str(pdata)
+levels(pdata$sex)
+pdata$age <- as.character(pdata$age)
+
+```
+
+
+```{r}
+#Use the mol.biol column to subset the data to contain just individuals with ‘BCR/ABL’ or ‘NEG’, e.g.,
+
+bcrabl <- pdata[pdata$mol.biol %in% c("BCR/ABL", "NEG"),]
+
+#The mol.biol column is a factor, and retains all levels even after subsetting. How might you drop the unused #factor levels?
+
+levels(bcrabl$mol.biol)
+
+bcrabl$mol.biol <- factor(bcrabl$mol.biol)
+levels(bcrabl$mol.biol)
+
+
+```
+
+
+###############################################
+# Introduction to bioconductor 1.2
+###############################################
+
+```{r}
+library(Biostrings)                     # Biological sequences
+data(phiX174Phage)                      # sample data, see ?phiX174Phage
+phiX174Phage
+
+m <- consensusMatrix(phiX174Phage)[1:4,] # nucl. x position counts
+
+??consensusMatrix
+
+polymorphic <- which(colSums(m != 0) > 1)
+m[, polymorphic]
+
+methods(class=class(phiX174Phage))      # 'DNAStringSet' methods
+
+
+m <- consensusMatrix(phiX174Phage)[1:4,]
+polymorphic <- which(colSums(m != 0) > 1)
+mapply(substr, polymorphic, polymorphic, MoreArgs=list(x=phiX174Phage))
+
+```
+
+
+2 A sequence analysis package tour
+
+This very open-ended topic points to some of the most prominent Bioconductor packages for sequence analysis. Use the opportunity in this lab to explore the package vignettes and help pages highlighted below; many of the material will be covered in greater detail in subsequent labs and lectures.
+
+Basics
+
+    Bioconductor packages are listed on the biocViews page. Each package has ‘biocViews’ (tags from a controlled vocabulary) associated with it; these can be searched to identify appropriately tagged packages, as can the package title and author.
+    Each package has a ‘landing page’, e.g., for GenomicRanges. Visit this landing page, and note the description, authors, and installation instructions. Packages are often written up in the scientific literature, and if available the corresponding citation is present on the landing page. Also on the landing page are links to the vignettes and reference manual and, at the bottom, an indication of cross-platform availability and download statistics.
+    A package needs to be installed once, using the instructions on the landing page. Once installed, the package can be loaded into an R session and the help system queried interactively, as outlined above:
+
+```{r}
+library(GenomicRanges)
+
+help(package="GenomicRanges")
+vignette(package="GenomicRanges")
+vignette(package="GenomicRanges", "GenomicRangesHOWTOs")
+?GRanges
+```
+
+```{r}
+data <- read.csv(file = "../data/BRFSS-subset.csv")
+
+getwd()
+```
+
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:

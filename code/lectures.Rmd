@@ -1,0 +1,97 @@
+---
+title: "CSAMA_Lectures"
+author: "Marc A.T. Teunis"
+date: "11 juli 2016"
+output: pdf_document
+---
+
+###########################################
+# CSAMA Course, Brixen, July 10th - 15th
+###########################################
+
+```{r}
+library(dplyr)
+
+
+glimpse(pckslist)
+
+
+plot(pckslist$Package ~ pckslist$Built)
+```
+
+# DAY 1, 11 July 2016
+
+######################
+# Lecture 3
+######################
+
+## defining and teaching day to day work
+
+# "learn to love the dataframe"
+
+# tible class: package {tible} 
+# tible can also be found in {dplyr}
+# print is a nice function in "tible"
+# no more stringsAsFactors, the default is strings = character
+# tibble is diferent from dataframe in the fact that: 
+# df is first argument, this facilitates pipe ( %>% )
+# if you can put it in a dataframe do it!
+# adopting the tidyverse (H. Wickham) is recommended
+# {dplyr}, {tibble}, {tidyr}, {readr}
+
+as.dataframe()
+read.table()
+as_tibble()
+tibble::enframe()
+transform()
+dplyr::mutate()
+
+
+# @stat545 courses
+
+####################################
+# Lecture 4: Levi Waldron
+####################################
+
+350 gigabases per flow cell end run
+one full illumina run takes three days
+costs EUR 500,000 per machine
+per run EUR EUR 10,000 /max 90 genomes
+
+droplet based sequencing, dropseq
+stream of oil in water
+
+
+
+
+##################################################
+# Lecture 5: Anders, High throughput sequencing
+##################################################
+
+
+
+
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
