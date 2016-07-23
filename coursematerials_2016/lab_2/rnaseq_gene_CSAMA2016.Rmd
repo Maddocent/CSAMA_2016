@@ -1,14 +1,17 @@
 ---
-title: RNA-seq workflow - gene-level exploratory analysis and differential expression
-subtitle: CSAMA2016 version
-date: July 10, 2016
-output: 
+title: "RNA-seq workflow - gene-level exploratory analysis and differential expression"
+date: "July 10, 2016"
+output:
+  pdf_document:
+    toc: yes
   html_document:
-    toc: true
+    toc: yes
+  word_document:
+    toc: yes
+subtitle: CSAMA2016 version
 bibliography: bibliography.bib
-vignette: >
-  %\VignetteIndexEntry{RNA-seq workflow at the gene level}
-  %\VignetteEngine{knitr::rmarkdown}
+vignette: |
+  %\VignetteIndexEntry{RNA-seq workflow at the gene level} %\VignetteEngine{knitr::rmarkdown}
 ---
 
 <!-- to compile this: library("rmarkdown"); render("rnaseq_gene_CSAMA2016.Rmd") -->
@@ -593,15 +596,15 @@ displayed live as the software is counting.
 #######################################################################
 on Windows machines: SKIP THE CHUNK BELOW
 #######################################################################
-```{r}
-library("Rsubread")
-fc <- featureCounts(files=filenames, 
-                    annot.ext=gtffile, 
-                    isGTFAnnotationFile=TRUE,
-                    isPairedEnd=TRUE)
-colnames(fc$counts) <- sampleTable$Run
-head(fc$counts)
-```
+#```{r}
+#library("Rsubread")
+#fc <- featureCounts(files=filenames, 
+#                    annot.ext=gtffile, 
+#                    isGTFAnnotationFile=TRUE,
+#                    isPairedEnd=TRUE)
+#colnames(fc$counts) <- sampleTable$Run
+#head(fc$counts)
+#```
 ########################################################################
 
 ## Branching point
