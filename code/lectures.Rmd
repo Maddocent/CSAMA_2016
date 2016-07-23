@@ -53,6 +53,12 @@ dplyr::mutate()
 # Lecture 4: Levi Waldron
 ####################################
 
+
+
+##################################################
+# Lecture 5: Anders, High throughput sequencing
+##################################################
+
 350 gigabases per flow cell end run
 one full illumina run takes three days
 costs EUR 500,000 per machine
@@ -61,12 +67,15 @@ per run EUR EUR 10,000 /max 90 genomes
 droplet based sequencing, dropseq
 stream of oil in water
 
+#####
+DEMO
+#####
+
+
+package fastqc to assess quality
 
 
 
-##################################################
-# Lecture 5: Anders, High throughput sequencing
-##################################################
 
 
 
